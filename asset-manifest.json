@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/poslink-affiliate-portal/static/css/main.ae989116.css",
+    "main.js": "/poslink-affiliate-portal/static/js/main.ab254cb3.js",
+    "static/js/453.84321821.chunk.js": "/poslink-affiliate-portal/static/js/453.84321821.chunk.js",
+    "index.html": "/poslink-affiliate-portal/index.html",
+    "main.ae989116.css.map": "/poslink-affiliate-portal/static/css/main.ae989116.css.map",
+    "main.ab254cb3.js.map": "/poslink-affiliate-portal/static/js/main.ab254cb3.js.map",
+    "453.84321821.chunk.js.map": "/poslink-affiliate-portal/static/js/453.84321821.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ae989116.css",
+    "static/js/main.ab254cb3.js"
+  ]
+}
