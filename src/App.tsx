@@ -1,14 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import PrivateRoute from './components/PrivateRoute';
-import Navbar from './components/Navbar';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Companies from './pages/Companies';
-import MyLinks from './pages/MyLinks';
-import Reports from './pages/Reports';
+import { AuthProvider } from './contexts/AuthContext.tsx';
+import PrivateRoute from './components/PrivateRoute.tsx';
+import Navbar from './components/Navbar.tsx';
+import Login from './pages/Login.tsx';
+import Register from './pages/Register.tsx';
+import Dashboard from './pages/Dashboard.tsx';
+import Companies from './pages/Companies.tsx';
+import MyLinks from './pages/MyLinks.tsx';
+import Reports from './pages/Reports.tsx';
 import './App.css';
 
 function App() {

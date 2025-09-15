@@ -28,11 +28,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // トークンがあるがユーザー情報がない場合、ユーザー情報を設定
+      const storedUser = localStorage.getItem('user');
+      if (storedUser && !user) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (error) {
+          // パースエラーの場合はトークンを削除
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setToken(null);
+        }
+      }
       setIsLoading(false);
     } else {
       setIsLoading(false);
     }
-  }, [token]);
+  }, [token, user]);
 
   const login = async (username: string, password: string) => {
     try {
@@ -40,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { token, user } = response.data;
 
       localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       setToken(token);
@@ -55,6 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { token, user } = response.data;
 
       localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       setToken(token);
@@ -66,6 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     delete axios.defaults.headers.common['Authorization'];
     setToken(null);
     setUser(null);

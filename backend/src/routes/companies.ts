@@ -24,8 +24,13 @@ router.get('/', authMiddleware, (req, res) => {
 
     query += ' ORDER BY name';
 
-    const companies = db.prepare(query).all(...params);
-    res.json(companies);
+    db.all(query, params, (err: any, companies: any[]) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Server error' });
+      }
+      res.json(companies);
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
@@ -36,8 +41,13 @@ router.get('/categories', authMiddleware, (req, res) => {
   const db = getDb();
 
   try {
-    const categories = db.prepare('SELECT DISTINCT category FROM companies WHERE status = "active" ORDER BY category').all();
-    res.json(categories.map((c: any) => c.category));
+    db.all('SELECT DISTINCT category FROM companies WHERE status = "active" ORDER BY category', [], (err: any, categories: any[]) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Server error' });
+      }
+      res.json(categories.map((c: any) => c.category));
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
@@ -49,13 +59,18 @@ router.get('/:id', authMiddleware, (req, res) => {
   const db = getDb();
 
   try {
-    const company = db.prepare('SELECT * FROM companies WHERE id = ? AND status = "active"').get(id);
+    db.get('SELECT * FROM companies WHERE id = ? AND status = "active"', [id], (err: any, company: any) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Server error' });
+      }
 
-    if (!company) {
-      return res.status(404).json({ error: 'Company not found' });
-    }
+      if (!company) {
+        return res.status(404).json({ error: 'Company not found' });
+      }
 
-    res.json(company);
+      res.json(company);
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });

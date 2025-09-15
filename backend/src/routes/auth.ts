@@ -20,28 +20,38 @@ router.post('/register', [
   const db = getDb();
 
   try {
-    const existingUser = db.prepare('SELECT id FROM users WHERE username = ? OR email = ?').get(username, email);
-
-    if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const result = db.prepare(`
-      INSERT INTO users (username, email, password)
-      VALUES (?, ?, ?)
-    `).run(username, email, hashedPassword);
-
-    const token = jwt.sign({ userId: result.lastInsertRowid }, process.env.JWT_SECRET!, { expiresIn: '7d' });
-
-    res.json({
-      token,
-      user: {
-        id: result.lastInsertRowid,
-        username,
-        email
+    db.get('SELECT id FROM users WHERE username = ? OR email = ?', [username, email], async (err: any, existingUser: any) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Server error' });
       }
+
+      if (existingUser) {
+        return res.status(400).json({ error: 'User already exists' });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      db.run(`
+        INSERT INTO users (username, email, password)
+        VALUES (?, ?, ?)
+      `, [username, email, hashedPassword], function(err: any) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: 'Server error' });
+        }
+
+        const token = jwt.sign({ userId: this.lastID }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+
+        res.json({
+          token,
+          user: {
+            id: this.lastID,
+            username,
+            email
+          }
+        });
+      });
     });
   } catch (error) {
     console.error(error);
@@ -62,27 +72,32 @@ router.post('/login', [
   const db = getDb();
 
   try {
-    const user = db.prepare('SELECT * FROM users WHERE username = ? OR email = ?').get(username, username) as any;
-
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
-
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email
+    db.get('SELECT * FROM users WHERE username = ? OR email = ?', [username, username], async (err: any, user: any) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Server error' });
       }
+
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+
+      res.json({
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email
+        }
+      });
     });
   } catch (error) {
     console.error(error);
